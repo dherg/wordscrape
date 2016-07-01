@@ -6,11 +6,7 @@
 # Output:
 #       - ScrapeResults.csv
 
-# TODO:
-#       - filename arguments
-#       - wait time arguments
 
-import requests
 from bs4 import BeautifulSoup
 import re
 import csv
@@ -19,6 +15,7 @@ import time
 import sys
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import argparse
 
 
 # return a random user agent string from the list of user agents
@@ -54,9 +51,9 @@ def googlesearch(query):
     return(pagesource)
 
 # retrieve keywords from keywords file
-def getkeywords():
+def getkeywords(keywordfile):
     keywords = []
-    keywordsfile = open('keywords.txt', 'r')
+    keywordsfile = open(keywordfile, 'r')
     for line in keywordsfile:
         keywords.append(line[:-1]) # strips \n at end of term
     keywordsfile.close()
@@ -96,8 +93,23 @@ def searchtargets(targets, alltext):
     return(targetfound)
 
 def main():
-    keywords = getkeywords()
-    targets = [line.rstrip('\n') for line in open('targets.txt', 'r')]
+
+    # get arguments from command line
+    parser = argparse.ArgumentParser(description = 'Search google results for' +
+        ' certain words.')
+    parser.add_argument('keywordfile', help='a text file containing search ' +
+        'terms to search on google, one query on each line')
+    parser.add_argument('targetfile', help='a text file containing words to ' +
+        'search for on results pages, one word on each line')
+    parser.add_argument('--delay', help='average delay between each ' + 
+        'search, in seconds. ', type=int,   default=30)
+    args = parser.parse_args()
+
+    # get keywords from file
+    keywords = getkeywords(args.keywordfile)
+
+    # get target words from file
+    targets = [line.rstrip('\n') for line in open(args.targetfile, 'r')]
 
     # open csv file and print header line
     resultsfile = open('ScrapeResults.csv', 'w', encoding='utf8', newline='')
@@ -121,12 +133,12 @@ def main():
         resultsfilewriter.writerow(row)
         resultsfile.flush()
         if keyword != keywords[len(keywords) - 1]:
-            randint = random.randint(20,40)
+            randint = random.randint(max(0, args.delay - 10), max(0, args.delay + 10))
             print('sleeping {} seconds...'.format(randint))
             time.sleep(randint)
 
     resultsfile.close()
-    print('finished')
+    print('finished. results in ScrapeResults.csv')
     
 
 if __name__ == '__main__':

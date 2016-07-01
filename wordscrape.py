@@ -3,10 +3,13 @@
 #       -.txt file with target words 
 #           (words we are looking for on the results page) (newline separated)
 
+# Output:
+#       - ScrapeResults.csv
+
 # TODO:
-#       - read from csv?
-#       - close files after done writing
-#       - clean up code
+#       - filename arguments
+#       - wait time arguments
+
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -18,7 +21,7 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
-
+# return a random user agent string from the list of user agents
 def randomua():
 
     # from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/
@@ -35,16 +38,10 @@ def randomua():
 
     return(random.choice(useragents))
 
-
+# open a PhantomJS browser, perform given google query, and return html of
+# results page
 def googlesearch(query):
 
-    # requests version                                                                                                                                                                     
-    # link = 'http://www.google.com/search?q={}'.format(query)                                                                                                                          
-    # ua = {'User-Agent': randomua()}                                                                                                                                                                                                                                            
-    # response = requests.get(link, headers=ua)                                                                                                                                                
-    # return(response.text)
-
-    # selenium version
     dcap = dict(DesiredCapabilities.PHANTOMJS)
     dcap['phantomjs.page.settings.userAgent'] = randomua()
     driver = webdriver.PhantomJS(desired_capabilities=dcap, service_args=['--ignore-ssl-errors=true'])
@@ -56,13 +53,17 @@ def googlesearch(query):
     driver.quit()
     return(pagesource)
 
+# retrieve keywords from keywords file
 def getkeywords():
     keywords = []
     keywordsfile = open('keywords.txt', 'r')
     for line in keywordsfile:
         keywords.append(line[:-1]) # strips \n at end of term
+    keywordsfile.close()
     return(keywords)
 
+# get google results page for query, then filter html for just main links and
+# descriptions
 def getresults(query):
     print('sending request for {}'.format(query))
     soup = BeautifulSoup(googlesearch(query), 'html.parser')
@@ -81,15 +82,17 @@ def getresults(query):
     alltext = ' '.join(alltext).lower()
     return(alltext)
 
-def searchtargets(targets, alltext, resultsfilewriter):
+# search for targets in alltext and return a list of booleans for whether each
+# target was found or not
+def searchtargets(targets, alltext):
     print('searching for target words')
     targetfound = []
     for target in targets:
         lowertarget = target.lower()
         if lowertarget in alltext:
-            targetfound.append("True")
+            targetfound.append(True)
         else:
-            targetfound.append("False")
+            targetfound.append(False)
     return(targetfound)
 
 def main():
@@ -108,7 +111,7 @@ def main():
 
     for keyword in keywords:
         alltext = getresults(keyword)
-        searchresult = searchtargets(targets, alltext, resultsfile)
+        searchresult = searchtargets(targets, alltext)
         # print(searchresult)
         # print(keyword)
         row = [keyword]
@@ -122,11 +125,9 @@ def main():
             print('sleeping {} seconds...'.format(randint))
             time.sleep(randint)
 
+    resultsfile.close()
     print('finished')
     
-    
-
-
 
 if __name__ == '__main__':
     main()

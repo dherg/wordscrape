@@ -4,19 +4,21 @@
 #			(words we are looking for on the results page) (newline separated)
 
 # TODO:
-#		- cycle through useragents
-#		- time delay
-#		- better output format 
+#		- selenium instead of requests
 #		- read from csv?
 #		- clean up code
 import requests
 from bs4 import BeautifulSoup
 import re
 import csv
+import random
+import time
 
 
-# from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/
-useragents = [
+def randomua():
+
+	# from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/
+	useragents = [
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17',
 	'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
 	'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
@@ -27,10 +29,13 @@ useragents = [
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
 	]
 
+	return(random.choice(useragents))
+
+
 def googlesearch(query):                                                                                                                                                                                       
     link = 'http://www.google.com/search?q={}'.format(query)
     # print(link)                                                                                                                            
-    ua = {'User-Agent': useragents[0]}                                                                
+    ua = {'User-Agent': randomua()}                                                                
     # payload = {'q': searchfor}                                                                                                                                                                                     
     response = requests.get(link, headers=ua)
     # with open('response.txt', 'w+') as responsefile:
@@ -96,6 +101,9 @@ def main():
 		row.extend(searchresult)
 		# print(row)
 		resultsfilewriter.writerow(row)
+		randint = random.randint(20,40)
+		print('sleeping {} seconds...'.format(randint))
+		time.sleep(randint)
 	
 	
 

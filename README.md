@@ -21,6 +21,8 @@ beautifulsoup4
 
 selenium
 
+install all requirements with `pip install -r requirements.txt`
+
 
 ### Example
 An example, searching for the words in `targets.txt` on the google results pages for the queries in `keywords.txt`, with an average delay of 35 seconds:

@@ -1,5 +1,4 @@
-keywords.txt
-response.txt
-targets.txt
+*.txt
 classes
+*.csv
 

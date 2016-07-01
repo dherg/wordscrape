@@ -55,7 +55,9 @@ def getkeywords(keywordfile):
     keywords = []
     keywordsfile = open(keywordfile, 'r')
     for line in keywordsfile:
-        keywords.append(line[:-1]) # strips \n at end of term
+        if line[len(line)-1] == '\n': # strips \n at end of term
+            line = line[:-1]
+        keywords.append(line) 
     keywordsfile.close()
     return(keywords)
 

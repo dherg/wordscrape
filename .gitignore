@@ -3,4 +3,5 @@ response.txt
 targets.txt
 classes
 *.csv
-
+*.html
+*.log

@@ -1,3 +1,4 @@
 requests==2.10.0
 beautifulsoup4==4.4.1
+selenium==2.53.6
 
